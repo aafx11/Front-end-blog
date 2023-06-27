@@ -1,7 +1,6 @@
 # AST
 ## 什么是AST
 抽象语法树 (Abstract Syntax Tree)，简称 AST，它以树状形式去描述编程语言的语法结构，相当于用对象的属性去描述代码的结构。
-https://jkchao.github.io/typescript-book-chinese/compiler/program.html
 
 ast 可视化
 https://ts-ast-viewer.com/#

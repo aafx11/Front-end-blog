@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+</head>
+
+<body>
+  <script>
+    // class Apply {
+    //   constructor() {
+    //     this.a = 1;
+    //     this.b = 2;
+    //   }
+    //   eat () {
+    //     console.log('eat');
+    //   }
+    // }
+    // let obj = new Apply();
+    // console.log('prototype', obj.prototype);
+    // console.log('obj', obj.__proto__.constructor);
+    // function doSomething () { }
+    // console.log('doSomething', doSomething.prototype);
+    {
+      function Parent (num) {
+        this.num = '123';
+      }
+      Parent.prototype.parentMethod = function () {
+        console.log('parentMethod');
+      };
+
+      // let obj = new Parent(1);
+
+      function Child () {
+        this.a = 100;
+      }
+      // 子对象继承父对象
+      Child.prototype = new Parent();
+      // 重置子对象的构造函数为自身
+      Child.prototype.constructor = Child;
+      Child.prototype.childMethod = function () {
+        console.log('childMethod');
+      };
+      const child = new Child();
+      console.log('num', child.num); // 继承自父对象的属性
+      child.parentMethod();  // 继承自父对象的方法
+      console.log(child.a); // 子对象自身的属性
+      child.childMethod(); // 子对象自身的方法
+
+      // 如果不进行重置子对象的构造函数，子对象的构造函数属性将指向父对象的构造函数。
+      // 这可能会导致一些意外的结果，比如使用 instanceof 运算符检查子对象时可能不会得到预期的结果。
+      console.log(child instanceof Child); // true
+      console.log(child instanceof Parent); // true
+    }
+
+    // 通过构造函数和call实现继承
+    {
+      function Parent () {
+        this.name = 'parent1';
+        this.get = () => {
+          console.log('get');
+        };
+      }
+
+      Parent.prototype.getName = function () {
+        return this.name;
+      };
+
+      function Child () {
+        Parent.call(this);
+        this.type = 'child';
+      }
+
+      let child = new Child();
+      console.log(child);  // 没问题
+      console.log(child.get());
+      // console.log(child.getName());  // 会报错
+    }
+
+    // 用 Object.create() 实现类式继承
+    {
+      // Shape——父类
+      function Shape () {
+        this.x = 0;
+        this.y = 0;
+      }
+
+      // 父类方法
+      Shape.prototype.move = function (x, y) {
+        this.x += x;
+        this.y += y;
+        console.info("Shape moved.");
+      };
+
+      // Rectangle——子类
+      function Rectangle () {
+        Shape.call(this); // 调用父类构造函数。
+      }
+
+      // 子类继承父类
+      Rectangle.prototype = Object.create(Shape.prototype, {
+        // 如果不将 Rectangle.prototype.constructor 设置为 Rectangle，
+        // 它将采用 Shape（父类）的 prototype.constructor。
+        // 为避免这种情况，我们将 prototype.constructor 设置为 Rectangle（子类）。
+        constructor: {
+          value: Rectangle,
+          enumerable: false,
+          writable: true,
+          configurable: true,
+        },
+      });
+
+      const rect = new Rectangle();
+
+      console.log("rect 是 Rectangle 类的实例吗？", rect instanceof Rectangle); // true
+      console.log("rect 是 Shape 类的实例吗？", rect instanceof Shape); // true
+      rect.move(1, 1); // 打印 'Shape moved.'
+      rect.x = 100
+      console.log('rect',rect.x);
+    }
+  </script>
+</body>
+
+</html>

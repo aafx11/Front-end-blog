@@ -28,3 +28,4 @@ function throttle(fn, delay = 1000) {
     }, delay);
   }
 }
+

@@ -1,5 +1,34 @@
 ## 本地缓存
-1.
+1. 有cookie，localStorage，sessionStorage，indexedDB 四种
+2. cookie，它是大小只有4KB的字符串数据，可以设置有效期，每次请求都会自动带上cookie，使用场景通常是保存一些
+   身份信息，比如token，来实现保持登录状态，方便请求接口的时候，服务端对用户进行身份验证,
+   （使用Expires或者Max-Age来设置有效期，Max-Age优先级更高）
+   document.cookie = '名字=值';Expires=;Max-Age=604800;
+
+3. localStorage 的大小通常是5M，是一种持久化本地存储，除非主动删除数据，不然永远不会过期，
+   并且只能存入字符串，不能直接存对象，
+   localStorage 有一些常用的方法，比如
+   localStorage.setItem，getItem，key(0) //获取第一个键名
+   removeItem，clear()，
+   使用场景一般是用来存储用户信息，或者做网站切换主题的功能
+
+4. sessionStorage 的大小通常也是5M，但是页面关闭之后，数据就会被清除，
+   一般用来存储视频的进度条，文章的观看状态，这种短期信息
+
+5. 最后一种 indexedDB ，支持持久化存储大量的结构化数据，并且能够存储文件，indexedDB 所有的操作都是异步的，
+   一些常用的api，比如通过 createObjectStore 来创建存储库， open(dbName, version)方法打开数据库，用add(data)方法，插入数据
+   用get(key)方法通过主键获取数据，通过put(data)方法来更新数据，
+   由于 indexedDB 的容量比较大，可以用存储本地聊天记录，存储在线文档的编辑历史，也可以用来存储即将要上传的文件
+
+## web worker
+1. js本身是单线程的，但是 web worker 能够创建一个多线程环境，但是在web worker里是没有window和document对象的，所以是无法操作dom节点的，
+   通常会将一些比较消耗性能的任务交由web worker去执行，
+   比如说，复杂的计算以及上传文件（excel大文件导出，主线程将需要导出的数据传给 worker，在worker 中生成 blob 文件，再传回给主线程进行下载就可以了）
+   
+2. 使用 new Worker(path, options)来创建一个 worker，主线程与 worker 线程都是通过 postMessage 来发送信息，以及监听 message 事件来接收信息，
+   worker线程 还能通过 importScripts 方法来加载js文件，
+   主线程通过 terminate 方法来关闭 worker， worker通过 close 方法关闭worker，
+   （关闭线程不是立即关闭的，worker线程当前的事件循环还是会执行的，如果在主线程关闭worker，worker当前的事件循环继续调用 postMessage 方法，主线程也不会接收到信息，如果在worker线程关闭worker，在当前事件循环中调用 postMessage，主线程依旧能监听到 message事件）
 
 ## 数组常用方法
 1. 增 push，unshift，splice，concat，concat 不会改变原数组

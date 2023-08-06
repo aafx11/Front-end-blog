@@ -59,3 +59,58 @@ v-show 只是基于css的视图切换
 3. v-if是惰性的，当渲染条件为false时，是不会有任何操作被触发的
 总的来说，v-if的性能消耗更大，他是直接操作dom节点的增加和删除
 如果需要频繁切换，就用v-show，如果运行时，渲染条件很少改变就用v-if
+
+## 权限管理 （角色，token，菜单，视图，接口）
+1. 权限管理是通过角色和token来实现的，一个用户关联多个角色，一个角色关联多个菜单权限，按钮权限来实现的
+2. 第一种是菜单权限，前端通过从接口获取到这个用户的菜单，在全局前置路由守卫 beforeEach 里，通过vue-router 的 addRoutes 方法将菜单动态的添加路由里面
+3. 第二种是按钮权限或者说是通过不同的权限去展示不同的视图，我会封装一个全局自定义指令，在指令里完成鉴权，如果用户没有权限，
+   就通过 removeChild 来移出指令绑定的dom节点(调用绑定指令的dom元素的父节点的removeChild方法， el.parentNode.removeChild(el))
+4. 最后一种是接口权限，在用户登录之后，后端会返回一个token，前端就将token存储在 cookie 里，没次请求就自动带上，后端就能够通过 token 去校验
+   用户的身份
+
+## vue-router 的路由守卫 （全局，独享，组件内）
+1. 全局前置守卫，brforeEach ，每次路由切换前执行
+2. 全局后置守卫，afterEach，每次路由切换后执行
+3. 独享守卫，beforeEnter，它是只针对某个特定路由菜单的
+4. 组件内的守卫，包括 beforeRouteEnter，beforeRouteLeave，进入组件和离开组件时调用
+参数：
+to: Route: 即将要进入的目标（路由对象）
+from: Route: 当前导航正要离开的路由
+next: Function:  调用该方法来控制接下来的行为
+
+
+## vue-router的两种模式以及区别 （前端路由，onhashchange）
+hash和history模式
+首先前端路由就是，匹配不同的url路径来加载不同的组件，然后动态渲染出html内容，（页面跳转是无刷新的）
+
+第一，hash模式（哈希）
+（1）hash模式是基于window（对象）.onhashchange事件来实现的，hash变化的时候，通过onhashchange监听，来实现更新页面部分内容的操作
+（1）第一种是 hash 模式，是通过监听 window 对象的 onhashchange 事件，当 hash 值发生变化，
+<!-- （2）通过hashHistory.push（将新路由添加到路由器访问历史的栈顶）和HashHistory.replace(替换掉栈顶的路由)来将页面的状态和url关联起来，从而实现页面前进后退 -->
+（2）通过改变hash值可以对页面进行操作，比如实现页内导航目录，通过监听hash值的变化，来改变页面锚点定位
+
+第二，history模式
+（1）history模式，是通过history的 pushState 和 replaceState 方法实现路由的前进和后退的，修改历史状态，改变url，且不会发送请求
+history.pushState(stateObject, title, URL)
+history.replaceState(stateObject, title, URL)
+
+第三，两者的区别
+（1）hash值虽然出现在路由中，但是不会包含在http请求中，对后端没有影响，改变hash不会重新加载页面，不会向服务器发起请求
+<!-- （2）hashchange只是改变了#后的hash，而pushState设置的新URL可以是与当前URL同源的任意URL。 -->
+（3）history模式下刷新页面或者修改url就会向服务器发送请求，所以必须要由服务器的支持，如果刷新的时候，服务器没有相应的资源就会404
+
+## Vue-Router 的懒加载如何实现
+（1）使用箭头函数+import动态加载。import是es6为js模块化提出的新的语法，import和export结合使用
+（2）使用箭头函数+require动态加载。require是一个数据对象的拷贝，而import是对对象的引用
+（3）require是运行时加载，import是编译时输出接口
+（4）webpack的require.ensure
+
+## Router和route的区别
+（1）route是路由信息对象，每个路由都会有一个route对象，相当于一个局部对象，可以查看路由path，路由params参数，路由hash，路由name名称等路由信息
+（2）router是路由实例，相当于一个全局对象，包括路由跳转，钩子函数（离开路由，进入路由），可以创建路由守卫等
+router.push本质就是向历史栈里添加一个路由
+
+## SPA 和 MPA
+1. SPA就是通过修改url，加载相应的组件，实现局部刷新，多个路由共有的组件就可以实现复用，比如一些导航栏、菜单
+   （不利于搜索引擎的抓取，首次渲染速度相对较慢）
+2. MPA 是整页刷新，即使不同路由有相同组件也无法复用
